@@ -119,7 +119,7 @@ const Products = () => {
           isClosable: true,
         })
       }
-      let res = await axios.post("http://localhost:3050/product", AddDetails);
+      let res = await axios.post("https://thepipingmart.up.railway.app/product", AddDetails);
       toast({
         title: 'Sucess',
         description: "Product Added",
@@ -143,7 +143,7 @@ const Products = () => {
     console.log(AddDetails);
     try {
       let res = await axios.patch(
-        `http://localhost:3050/${queryType}/${ID}`,
+        `https://thepipingmart.up.railway.app/${queryType}/${ID}`,
         AddDetails
       );
       console.log(res);
