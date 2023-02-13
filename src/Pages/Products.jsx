@@ -30,6 +30,7 @@ const Products = () => {
   const [Newfaq, setNewFaq] = useState({ question: "", answer: "" });
   const [obj, setObj] = useState([]);
   const [productname, setProductname] = useState("");
+  const [logo,setLogo] = useState("");
   // ###########################
   const modules = {
     toolbar: [
@@ -75,24 +76,37 @@ const Products = () => {
   const handleQuery = (e) => {
     let q = e.target.value;
     setQuery(q);
+    
+  };
+  
+  const checkqueryType=()=>{
     if (query.includes("material")) {
       setqueryType("material"); 
     } else {
       setqueryType("product");
     }
-  };
-  
-  useEffect(()=>{
+  }
+  console.log(queryType)
+  const checkproductType=()=>{
     if(queryType=="product"){
       let pname = query.split("product/");
         setProductname(pname[1]);
     }
-    else{
+    if(queryType=="material"){
       let pname = query.split("material/");
         setProductname(pname[1]);
     }
+  }
+  console.log(productname)
+  useEffect(()=>{
+    checkqueryType()
+    
   },[query])
 
+  useEffect(()=>{
+    checkproductType()
+  })
+console.log()
   const handleSearch = async () => {
     
     try {
@@ -242,6 +256,9 @@ const Products = () => {
     setOpen(true);
   };
 
+  const handleChange1 = ({name,value})=>{
+    console.log(name,value)
+  }
   const [open, setOpen] = React.useState(false);
 
   return (
@@ -337,7 +354,7 @@ const Products = () => {
                                   ? details.logo
                                   : ""
                               }
-                              onChange={({ target }) => handleChange(target)}
+                              onChange={({ target }) => handleChange1(target)}
                             />
                           </FormControl>
                         </Box>
