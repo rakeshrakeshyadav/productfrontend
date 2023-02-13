@@ -14,11 +14,11 @@ import {
 } from "@chakra-ui/react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { useToast } from '@chakra-ui/react'
+import { useToast } from "@chakra-ui/react";
 import { htmlToText } from "html-to-text";
 
 const Products = () => {
-  const toast = useToast()
+  const toast = useToast();
   const [details, setDetails] = useState(null);
   const [query, setQuery] = useState("");
   const [queryType, setqueryType] = useState("");
@@ -27,8 +27,9 @@ const Products = () => {
   const [AddDetails, setAddDetails] = useState({});
   const [code, setCode] = useState("");
   const [faq, setFaq] = useState([]);
-  const [Newfaq, setNewFaq] = useState({question:"",answer:""});
+  const [Newfaq, setNewFaq] = useState({ question: "", answer: "" });
   const [obj, setObj] = useState([]);
+  const [productname, setProductname] = useState("");
   // ###########################
   const modules = {
     toolbar: [
@@ -74,17 +75,33 @@ const Products = () => {
   const handleQuery = (e) => {
     let q = e.target.value;
     setQuery(q);
-  };
-  console.log(query)
-  const handleSearch = async () => {
     if (query.includes("material")) {
-      setqueryType("material");
+      setqueryType("material"); 
     } else {
       setqueryType("product");
     }
+  };
+  
+  useEffect(()=>{
+    if(queryType=="product"){
+      let pname = query.split("product/");
+        setProductname(pname[1]);
+    }
+    else{
+      let pname = query.split("material/");
+        setProductname(pname[1]);
+    }
+  },[query])
 
+  const handleSearch = async () => {
+    
     try {
-      let data1 = await axios(query);
+      console.log(
+        `https://thepipingmart.up.railway.app/${queryType}/${productname}`
+      );
+      let data1 = await axios(
+        `https://thepipingmart.up.railway.app/${queryType}/${productname}`
+      );
 
       setDetails(data1.data);
 
@@ -98,45 +115,48 @@ const Products = () => {
     } catch (err) {
       console.log(err);
       toast({
-        title: 'Error',
+        title: "Error",
         description: "Not Found",
-        status: 'error',
+        status: "error",
         duration: 2000,
         isClosable: true,
-      })
+      });
     }
   };
-
+  // console.log(`${queryType}/${productname}`)
   const handleAdd = async () => {
     console.log(AddDetails);
     try {
-      if(AddDetails={}){
+      if ((AddDetails = {})) {
         return toast({
-          title: 'Error',
+          title: "Error",
           description: "Enter Valid Data",
-          status: 'warning',
+          status: "warning",
           duration: 3000,
           isClosable: true,
-        })
+        });
       }
-      let res = await axios.post("https://thepipingmart.up.railway.app/product", AddDetails);
+      let res = await axios.post(
+        "https://thepipingmart.up.railway.app/product",
+        AddDetails
+      );
       toast({
-        title: 'Sucess',
+        title: "Sucess",
         description: "Product Added",
-        status: 'success',
+        status: "success",
         duration: 3000,
         isClosable: true,
-      })
+      });
       console.log(res);
     } catch (err) {
       console.log(err);
       toast({
-        title: 'Failed',
+        title: "Failed",
         description: "Error",
-        status: 'error',
+        status: "error",
         duration: 2000,
         isClosable: true,
-      })
+      });
     }
   };
   const handleUpdate = async () => {
@@ -146,24 +166,24 @@ const Products = () => {
         `https://thepipingmart.up.railway.app/${queryType}/${ID}`,
         AddDetails
       );
-      console.log(res);
+      // console.log(res);
       toast({
-        title: 'Success',
+        title: "Success",
         description: "Updated Successfully",
-        status: 'success',
+        status: "success",
         duration: 9000,
         isClosable: true,
-      })
+      });
       // alert("Updated successfully");
     } catch (err) {
       console.log(err.message);
       toast({
-        title: 'Error',
+        title: "Error",
         description: "Updation Failed",
-        status: 'error',
+        status: "error",
         duration: 9000,
         isClosable: true,
-      })
+      });
       // alert("Updation Failed");
     }
   };
@@ -184,38 +204,34 @@ const Products = () => {
   };
 
   //-----------------------------------------------------
-const handleSavefaq=()=>{
-  let x = obj;
-  x.push(Newfaq);
-  setObj(x)
-  console.log(obj)
-  setAddDetails({ ...AddDetails, faqs: obj });
-  setOpen(false)
-}
-
-
+  const handleSavefaq = () => {
+    let x = obj;
+    x.push(Newfaq);
+    setObj(x);
+    // console.log(obj)
+    setAddDetails({ ...AddDetails, faqs: obj });
+    setOpen(false);
+  };
 
   // ----------------------------------------------------
-  const handleAddnewFaq = ({target}) => {
-
-    setNewFaq({...Newfaq,[target.name]:target.value})
+  const handleAddnewFaq = ({ target }) => {
+    setNewFaq({ ...Newfaq, [target.name]: target.value });
   };
-  
+
   const handleEditFaq = () => {
     console.log(obj);
     setAddDetails({ ...AddDetails, faqs: obj });
   };
 
-  const handleRemoveFaq = (index)=>{
+  const handleRemoveFaq = (index) => {
     let x = obj.filter((ele, i) => {
-      return i!=index
+      return i != index;
     });
-    
-    setFaq(x)
-    console.log(x)
-    setAddDetails({ ...AddDetails, faqs: x });
 
-  }
+    setFaq(x);
+    // console.log(x)
+    setAddDetails({ ...AddDetails, faqs: x });
+  };
   const handleChange = ({ name, value }) => {
     setAddDetails({
       ...AddDetails,
@@ -228,7 +244,7 @@ const handleSavefaq=()=>{
 
   const [open, setOpen] = React.useState(false);
 
-    return (
+  return (
     <div>
       <Container
         bg="#9DC4FB"
@@ -397,7 +413,11 @@ const handleSavefaq=()=>{
                               faq.length &&
                               faq.map((item, key) => (
                                 <Box key={key}>
-                                  <Box  mb="50px" display="flex" flexDirection="column">
+                                  <Box
+                                    mb="50px"
+                                    display="flex"
+                                    flexDirection="column"
+                                  >
                                     <Input
                                       name="question"
                                       type="text"
@@ -413,9 +433,8 @@ const handleSavefaq=()=>{
                                       onChange={({ target }) =>
                                         faqOnchange(target, key)
                                       }
-                                      >
+                                    >
                                       {htmlToText(item?.answer)}
-                                      
                                     </Textarea>
                                     {/* <ReactQuill
                                 theme="snow"
@@ -425,36 +444,36 @@ const handleSavefaq=()=>{
                                 onChange={({ target }) =>faqOnchange(target, key)}
                               /> */}
                                     <Box mt="20px">
-                                    <Button
-                                      width="20%"
-                                      size="sm"
-                                      bg={"blue.400"}
-                                      color={"white"}
-                                      _hover={{
-                                        bg: "blue.500",
-                                      }}
-                                      onClick={() => handleEditFaq(key)}
-                                    >
-                                      Edit FAQ
-                                    </Button>
-                                    <Button
-                                    ml="20px"
-                                      width="20%"
-                                      size="sm"
-                                      bg={"red.400"}
-                                      color={"white"}
-                                      _hover={{
-                                        bg: "red.500",
-                                      }}
-                                      onClick={() => handleRemoveFaq(key)}
-                                    >
-                                      Remove
-                                    </Button>
+                                      <Button
+                                        width="20%"
+                                        size="sm"
+                                        bg={"blue.400"}
+                                        color={"white"}
+                                        _hover={{
+                                          bg: "blue.500",
+                                        }}
+                                        onClick={() => handleEditFaq(key)}
+                                      >
+                                        Edit FAQ
+                                      </Button>
+                                      <Button
+                                        ml="20px"
+                                        width="20%"
+                                        size="sm"
+                                        bg={"red.400"}
+                                        color={"white"}
+                                        _hover={{
+                                          bg: "red.500",
+                                        }}
+                                        onClick={() => handleRemoveFaq(key)}
+                                      >
+                                        Remove
+                                      </Button>
                                     </Box>
                                   </Box>
                                 </Box>
                               ))}
-                            
+
                             {open && (
                               <>
                                 <Input
@@ -464,7 +483,10 @@ const handleSavefaq=()=>{
                                   onChange={handleAddnewFaq}
                                 />
                                 <Box>
-                                  <Textarea name = "answer"  onChange={handleAddnewFaq}>
+                                  <Textarea
+                                    name="answer"
+                                    onChange={handleAddnewFaq}
+                                  >
                                     {htmlToText(Newfaq?.answer)}
                                   </Textarea>
                                   {/* <ReactQuill
@@ -479,25 +501,25 @@ const handleSavefaq=()=>{
                                 </Textarea> */}
                                 </Box>
                                 <Box
-                              style={{
-                                display: "flex",
-                                justifyContent: "flex-start",
-                                margin: "20px",
-                              }}
-                            >
-                              <Button
-                                width="20%"
-                                size="sm"
-                                bg={"blue.400"}
-                                color={"white"}
-                                _hover={{
-                                  bg: "blue.500",
-                                }}
-                                onClick={handleSavefaq}
-                              >
-                                Save
-                              </Button>
-                            </Box>
+                                  style={{
+                                    display: "flex",
+                                    justifyContent: "flex-start",
+                                    margin: "20px",
+                                  }}
+                                >
+                                  <Button
+                                    width="20%"
+                                    size="sm"
+                                    bg={"blue.400"}
+                                    color={"white"}
+                                    _hover={{
+                                      bg: "blue.500",
+                                    }}
+                                    onClick={handleSavefaq}
+                                  >
+                                    Save
+                                  </Button>
+                                </Box>
                               </>
                             )}
                             <Box
@@ -507,7 +529,6 @@ const handleSavefaq=()=>{
                                 margin: "20px",
                               }}
                             >
-
                               <Button
                                 width="20%"
                                 size="sm"
