@@ -392,7 +392,7 @@ console.log()
                             <Textarea
                               name="meta"
                               defaultValue={
-                                details && details.meta !== ""
+                                details && details.meta != ""
                                   ? details.meta
                                   : ""
                               }
