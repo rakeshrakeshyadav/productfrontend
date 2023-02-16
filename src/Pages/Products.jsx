@@ -30,9 +30,6 @@ const Products = () => {
   const [clickupdate,setClickupdate] = useState(false)
   const dispatch= useDispatch()
   // ###########################
- 
-
-
   
   useEffect(()=>{
     if(data){
@@ -45,6 +42,13 @@ const Products = () => {
 }
 },[data])
 
+useEffect(()=>{
+  if(clickupdate){
+    window.location.reload(false);
+    setClickupdate(false)
+  }
+
+},[clickupdate])
 
 const handleProcedureContentChange = (content) => {  //descriopton
  setCode(content);
@@ -112,12 +116,7 @@ const handleProcedureContentChange = (content) => {  //descriopton
         AddDetails
       );
       // console.log(res);
-      setDetails(null)
-      setFaq([])
-      setCode("")
-      setQuery("")
-      setAddDetails({})
-      setClickupdate(true)
+     
       toast({
         title: "Success",
         description: "Updated Successfully",
@@ -125,6 +124,13 @@ const handleProcedureContentChange = (content) => {  //descriopton
         duration: 9000,
         isClosable: true,
       });
+      setDetails(data||null)
+      setFaq([])
+      setCode("")
+      setQuery("")
+      setAddDetails({})
+      setClickupdate(true)
+    
       // alert("Updated successfully");
     } catch (err) {
       console.log(err.message);
