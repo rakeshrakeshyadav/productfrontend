@@ -124,11 +124,7 @@ const handleProcedureContentChange = (content) => {  //descriopton
         duration: 9000,
         isClosable: true,
       });
-      setDetails(data||null)
-      setFaq([])
-      setCode("")
-      setQuery("")
-      setAddDetails({})
+      
       setClickupdate(true)
     
       // alert("Updated successfully");
