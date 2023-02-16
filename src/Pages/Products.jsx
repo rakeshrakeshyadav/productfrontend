@@ -1,72 +1,53 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import {
-  Container,
-  Flex,
-  Box,
-  Heading,
-  Button,
-  Wrap,
-  FormControl,
-  FormLabel,
-  Input,
-  Textarea,
+import {  Container,  Flex,  Box,  Heading,  Button,  Wrap,  FormControl,  FormLabel,  Input,  Textarea,
 } from "@chakra-ui/react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { useToast } from "@chakra-ui/react";
 import { htmlToText } from "html-to-text";
+import { useDispatch, useSelector } from "react-redux";
+import { AddProduct, searchData } from "../Redux/AppReducer/action";
+import {modules} from '../Assest/Module'
+import {formats} from '../Assest/Module'
 
 const Products = () => {
+  const {data,faqs,ProductId,description} = useSelector(store=>store.AppReducer)
+  // console.log(ProductId,description,faqs,data)
   const toast = useToast();
-  const [details, setDetails] = useState(null);
+  const [details, setDetails] = useState(data||null);
   const [query, setQuery] = useState("");
   const [queryType, setqueryType] = useState("");
   const [ProdID, setProdID] = useState("");
   const [ID, setID] = useState("");
   const [AddDetails, setAddDetails] = useState({});
-  const [code, setCode] = useState("");
+  const [code, setCode] = useState(description || "");
   const [faq, setFaq] = useState([]);
   const [Newfaq, setNewFaq] = useState({ question: "", answer: "" });
-  const [obj, setObj] = useState([]);
+  const [obj, setObj] = useState(faqs|| []);
   const [productname, setProductname] = useState("");
   const [logo,setLogo] = useState("");
+  const [clickupdate,setClickupdate] = useState(false)
+  const dispatch= useDispatch()
   // ###########################
-  const modules = {
-    toolbar: [
-      [{ header: [1, 2, 3, 4, 5, 6, false] }],
-      ["bold", "italic", "underline", "strike", "blockquote"],
-      [{ size: [] }],
-      [{ font: [] }],
-      [{ align: ["right", "center", "justify"] }],
-      [{ list: "ordered" }, { list: "bullet" }],
-      ["link", "image"],
-      [{ color: ["red", "#785412"] }],
-      [{ background: ["red", "#785412"] }],
-    ],
-  };
+ 
 
-  const formats = [
-    "header",
-    "bold",
-    "italic",
-    "underline",
-    "strike",
-    "blockquote",
-    "list",
-    "bullet",
-    "link",
-    "color",
-    "image",
-    "background",
-    "align",
-    "size",
-    "font",
-  ];
 
-  const handleProcedureContentChange = (content) => {
-    setCode(content);
-    // console.log(target)
+  
+  useEffect(()=>{
+    if(data){
+      if(data){
+    setDetails(data)
+    setFaq(faqs)
+    setCode(description)
+    setID(ProductId)
+  }
+}
+},[data])
+
+
+const handleProcedureContentChange = (content) => {  //descriopton
+ setCode(content);
     setAddDetails({
       ...AddDetails,
       description: content,
@@ -75,73 +56,27 @@ const Products = () => {
 
   const handleQuery = (e) => {
     let q = e.target.value;
-    setQuery(q);
+    q.trim().split("/")
     
+    setQuery(q);
   };
   
-  const checkqueryType=()=>{
-    if (query.includes("material")) {
-      setqueryType("material"); 
-    } else {
-      setqueryType("product");
+ 
+  const handleSearch =() => {
+    let newArr= query.trim().split("/") 
+    // setqueryType(newArr[newArr.lenght-2]);
+    // setProductname(newArr[newArr.length-1])
+    dispatch(searchData(newArr[newArr.length-2],newArr[newArr.length-1]))
+    setqueryType(newArr[newArr.length-2])
+   
     }
-  }
-  console.log(queryType)
-  const checkproductType=()=>{
-    if(queryType=="product"){
-      let pname = query.split("product/");
-        setProductname(pname[1]);
-    }
-    if(queryType=="material"){
-      let pname = query.split("material/");
-        setProductname(pname[1]);
-    }
-  }
-  console.log(productname)
-  useEffect(()=>{
-    checkqueryType()
-    
-  },[query])
-
-  useEffect(()=>{
-    checkproductType()
-  })
-console.log()
-  const handleSearch = async () => {
-    
-    try {
-      console.log(
-        `https://thepipingmart.up.railway.app/${queryType}/${productname}`
-      );
-      let data1 = await axios(
-        `https://thepipingmart.up.railway.app/${queryType}/${productname}`
-      );
-
-      setDetails(data1.data);
-
-      setProdID(data1.data.productId);
-      let defaultdata = htmlToText(data1?.data.description, {});
-      setFaq(data1.data.faqs);
-
-      setCode(defaultdata);
-      setID(data1.data._id);
-      setObj(data1.data.faqs);
-    } catch (err) {
-      console.log(err);
-      toast({
-        title: "Error",
-        description: "Not Found",
-        status: "error",
-        duration: 2000,
-        isClosable: true,
-      });
-    }
-  };
+  
   // console.log(`${queryType}/${productname}`)
+  
   const handleAdd = async () => {
     console.log(AddDetails);
     try {
-      if ((AddDetails = {})) {
+      if ((AddDetails == {})) {
         return toast({
           title: "Error",
           description: "Enter Valid Data",
@@ -150,10 +85,7 @@ console.log()
           isClosable: true,
         });
       }
-      let res = await axios.post(
-        "https://thepipingmart.up.railway.app/product",
-        AddDetails
-      );
+      dispatch(AddProduct(AddDetails))
       toast({
         title: "Sucess",
         description: "Product Added",
@@ -161,7 +93,7 @@ console.log()
         duration: 3000,
         isClosable: true,
       });
-      console.log(res);
+      
     } catch (err) {
       console.log(err);
       toast({
@@ -174,13 +106,18 @@ console.log()
     }
   };
   const handleUpdate = async () => {
-    console.log(AddDetails);
     try {
       let res = await axios.patch(
         `https://thepipingmart.up.railway.app/${queryType}/${ID}`,
         AddDetails
       );
       // console.log(res);
+      setDetails(null)
+      setFaq([])
+      setCode("")
+      setQuery("")
+      setAddDetails({})
+      setClickupdate(true)
       toast({
         title: "Success",
         description: "Updated Successfully",
@@ -200,11 +137,12 @@ console.log()
       });
       // alert("Updation Failed");
     }
+
   };
   // #####################faq onchange function########################
 
   const faqOnchange = ({ name, value }, index) => {
-    let x = obj.map((ele, i) => {
+    let x = faq.map((ele, i) => {
       if (index == i) {
         if (name == "question") {
           ele.question = value;
@@ -214,17 +152,19 @@ console.log()
       }
       return ele;
     });
-    setObj(x);
+    setFaq(x);
   };
 
   //-----------------------------------------------------
   const handleSavefaq = () => {
-    let x = obj;
+    let x = faq;
     x.push(Newfaq);
-    setObj(x);
+    setFaq(x);
     // console.log(obj)
-    setAddDetails({ ...AddDetails, faqs: obj });
+    setAddDetails({ ...AddDetails, faqs: faq });
+    console.log(faq,x)
     setOpen(false);
+    setNewFaq("")
   };
 
   // ----------------------------------------------------
@@ -233,17 +173,16 @@ console.log()
   };
 
   const handleEditFaq = () => {
-    console.log(obj);
-    setAddDetails({ ...AddDetails, faqs: obj });
+    console.log(faq);
+    setAddDetails({ ...AddDetails, faqs: faq });
   };
 
   const handleRemoveFaq = (index) => {
-    let x = obj.filter((ele, i) => {
+    let x = faq.filter((ele, i) => {
       return i != index;
     });
 
     setFaq(x);
-    // console.log(x)
     setAddDetails({ ...AddDetails, faqs: x });
   };
   const handleChange = ({ name, value }) => {
@@ -263,6 +202,7 @@ console.log()
 
   return (
     <div>
+      <form >
       <Container
         bg="#9DC4FB"
         maxW="full"
@@ -344,7 +284,7 @@ console.log()
                         </Box>
 
                         <Box>
-                          <FormControl id="h1" w="300px">
+                          <FormControl id="h1" w="300px" hidden={true}>
                             <FormLabel>Upload logo </FormLabel>
                             <Input
                               name="logo"
@@ -415,6 +355,7 @@ console.log()
                           </FormControl>
                         </Box>
                         <Box>
+
                           <FormControl id="faq" width="800px">
                             <Box
                               style={{
@@ -439,7 +380,7 @@ console.log()
                                       name="question"
                                       type="text"
                                       // key={key}
-                                      defaultValue={item?.question}
+                                      value={item?.question}
                                       onChange={({ target }) =>
                                         faqOnchange(target, key)
                                       }
@@ -447,19 +388,12 @@ console.log()
                                     <Textarea
                                       // key={key}
                                       name="answer"
+                                      value={htmlToText(item?.answer) || ""}
                                       onChange={({ target }) =>
                                         faqOnchange(target, key)
                                       }
-                                    >
-                                      {htmlToText(item?.answer)}
-                                    </Textarea>
-                                    {/* <ReactQuill
-                                theme="snow"
-                                modules={modules}
-                                formats={formats}
-                                value={code}
-                                onChange={({ target }) =>faqOnchange(target, key)}
-                              /> */}
+                                   />
+                                   
                                     <Box mt="20px">
                                       <Button
                                         width="20%"
@@ -503,19 +437,9 @@ console.log()
                                   <Textarea
                                     name="answer"
                                     onChange={handleAddnewFaq}
-                                  >
-                                    {htmlToText(Newfaq?.answer)}
-                                  </Textarea>
-                                  {/* <ReactQuill
-                                  theme="snow"
-                                  modules={modules}
-                                  formats={formats}
-                                  value={newFaq.answer}
-                                  onChange={handleChangeAnswer}
-                                /> */}
-                                  {/* <Textarea>
-                                  {htmlToText("test")}
-                                </Textarea> */}
+                                    value={Newfaq?.answer}
+                                  />
+                                  
                                 </Box>
                                 <Box
                                   style={{
@@ -562,10 +486,10 @@ console.log()
                           </FormControl>
                         </Box>
                       </Flex>
-                      <Flex></Flex>
+                      
 
                       <Flex gap={5} justifyContent="center" pt="1rem">
-                        <Button
+                        {/* <Button
                           width="20%"
                           size="lg"
                           bg={"blue.400"}
@@ -576,7 +500,7 @@ console.log()
                           onClick={handleAdd}
                         >
                           Add Product
-                        </Button>
+                        </Button> */}
                         <Button
                           width="20%"
                           size="lg"
@@ -598,6 +522,7 @@ console.log()
           </Box>
         </Flex>
       </Container>
+      </form>
     </div>
   );
 };
