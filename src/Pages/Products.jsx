@@ -28,6 +28,7 @@ const Products = () => {
   const [productname, setProductname] = useState("");
   const [logo,setLogo] = useState("");
   const [clickupdate,setClickupdate] = useState(false)
+  const [iseditDisabled,setisEditDisabled] = useState(null)
   const dispatch= useDispatch()
   // ###########################
   
@@ -144,6 +145,7 @@ const handleProcedureContentChange = (content) => {  //descriopton
   // #####################faq onchange function########################
 
   const faqOnchange = ({ name, value }, index) => {
+   
     let x = faq.map((ele, i) => {
       if (index == i) {
         if (name == "question") {
@@ -176,6 +178,7 @@ const handleProcedureContentChange = (content) => {  //descriopton
 
   const handleEditFaq = () => {
     console.log(faq);
+    setisEditDisabled(null)
     setAddDetails({ ...AddDetails, faqs: faq });
   };
 
@@ -383,12 +386,14 @@ const handleProcedureContentChange = (content) => {  //descriopton
                                       type="text"
                                       // key={key}
                                       value={item?.question}
+                                      isDisabled={iseditDisabled!=key}
                                       onChange={({ target }) =>
                                         faqOnchange(target, key)
                                       }
                                     />
                                     <Textarea
                                       // key={key}
+                                      isDisabled={iseditDisabled!=key}
                                       name="answer"
                                       value={htmlToText(item?.answer) || ""}
                                       onChange={({ target }) =>
@@ -397,18 +402,33 @@ const handleProcedureContentChange = (content) => {  //descriopton
                                    />
                                    
                                     <Box mt="20px">
-                                      <Button
+                                     {iseditDisabled==key? <Button
                                         width="20%"
                                         size="sm"
                                         bg={"blue.400"}
                                         color={"white"}
                                         _hover={{
                                           bg: "blue.500",
+                                  
                                         }}
+                                        isDisabled={iseditDisabled!=key}
                                         onClick={() => handleEditFaq(key)}
                                       >
+                                        Save
+                                      </Button>: <Button
+                                        width="20%"
+                                        size="sm"
+                                        bg={"blue.400"}
+                                        color={"white"}
+                                        _hover={{
+                                          bg: "blue.500",
+                                  
+                                        }}
+                                      
+                                        onClick={() => setisEditDisabled(key)}
+                                      >
                                         Edit FAQ
-                                      </Button>
+                                      </Button>}
                                       <Button
                                         ml="20px"
                                         width="20%"
